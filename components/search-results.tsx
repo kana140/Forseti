@@ -3,10 +3,7 @@
 import { Button } from "@/components/ui/button";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -142,7 +139,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-navy-900">
-            Searching for "{query}"
+            Searching for &quot;{query}&quot;
           </h2>
         </div>
         {[1, 2, 3].map((i) => (
@@ -169,7 +166,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-navy-900">
-          Results for "{query}"
+          Results for &quot;{query}&quot;
         </h2>
         <p className="text-zinc-500">{results.length} components found</p>
       </div>
