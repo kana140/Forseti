@@ -44,8 +44,17 @@ type ComponentResult = {
 };
 
 type RawWebsiteResult = {
-  productData: object[]; // or replace `any` with the proper type if you have it
+  productData: productData[]; // or replace `any` with the proper type if you have it
   websiteLink: string;
+};
+
+type productData = {
+  distributor: string;
+  manufacturer: string;
+  distributorNo: string;
+  stock: string;
+  prices: quantityPrice[];
+  link: string;
 };
 
 type RawApiData = {
