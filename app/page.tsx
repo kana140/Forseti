@@ -6,8 +6,16 @@ import { SearchResults } from "@/components/search-results";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 
+interface SearchData {
+  data: object;
+  searchQuery: string;
+}
+
 export default function Home() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<SearchData>({
+    data: {},
+    searchQuery: "",
+  });
   const [cache, setCache] = useState(new Map());
   const [isLoading, setIsLoading] = useState(false);
 
