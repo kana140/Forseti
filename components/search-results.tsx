@@ -44,7 +44,7 @@ type ComponentResult = {
 };
 
 type RawWebsiteResult = {
-  productData: any[]; // or replace `any` with the proper type if you have it
+  productData: object[]; // or replace `any` with the proper type if you have it
   websiteLink: string;
 };
 
