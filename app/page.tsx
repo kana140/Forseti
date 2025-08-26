@@ -27,7 +27,8 @@ export default function Home() {
       return;
     }
 
-    const requestUrl = `http://127.0.0.1:8000/api/search?q=${query}`;
+    const API_URL = process.env.REACT_APP_BACKEND_URL;
+    const requestUrl = `${API_URL}/api/search?q=${query}`;
     const response = await fetch(requestUrl);
     const result = await response.json();
     console.log(result);
