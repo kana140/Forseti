@@ -27,7 +27,7 @@ export default function Home() {
       return;
     }
 
-    const API_URL = process.env.REACT_APP_BACKEND_URL;
+    const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
     const requestUrl = `${API_URL}/api/search?q=${query}`;
     const response = await fetch(requestUrl);
     const result = await response.json();

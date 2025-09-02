@@ -3,7 +3,6 @@
 # Python virtual environments
 venv/
 server/venv/
-.env/
 .venv/
 
 # Python cache files
@@ -53,7 +52,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env.local
 
 # vercel
 .vercel
