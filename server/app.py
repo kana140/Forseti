@@ -5,7 +5,11 @@ from scraper.config import SCRAPE_URLS
 import asyncio
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["https://net-component-scraper.vercel.app", "http://localhost:3000"]}})
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:3000",
+    "https://*.web.app",
+    "https://*.firebaseapp.com"
+    ]}})
 
 def run_scraper(searchQuery):
     searchQuery = searchQuery.strip()
