@@ -66,8 +66,10 @@ type RawApiData = {
 export function SearchResults({ data, isLoading }: SearchResultsProp) {
   const query = data.searchQuery;
   const [results, setResults] = useState<ComponentResult[]>([]);
-  // const [loading, setLoading] = useState(false);
   const [expandedSources, setExpandedSources] = useState<{
+    [key: string]: boolean;
+  }>({});
+  const [expandedResult, setExpandedResult] = useState<{
     [key: string]: boolean;
   }>({});
 
@@ -106,14 +108,16 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
   useEffect(() => {
     if (Object.keys(results).length > 0) {
       const newExpandedSources: { [key: string]: boolean } = {};
-
-      results.forEach((component) => {
+      const expandedSearchResults: { [key: string]: boolean } = {};
+      results.forEach((component, cIndex) => {
+        let partNumber = component.partNumber;
+        expandedSearchResults[`${partNumber}-${cIndex}`] = partNumber === query;
         component.sources.forEach((source, sourceIdx) => {
-          const key = `${component.partNumber}-${sourceIdx}`;
+          const key = `${partNumber}-${sourceIdx}`;
           newExpandedSources[key] = sourceIdx === 0; // Expand first source of each component
         });
       });
-
+      setExpandedResult(expandedSearchResults);
       setExpandedSources(newExpandedSources);
     }
   }, [results]);
@@ -191,158 +195,185 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
         </div>
       ) : (
         <div className="space-y-6">
-          {results.map((component, id) => (
-            <Card key={id} className="w-full">
-              <CardHeader>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-navy-900">
-                      {component.partNumber}
-                    </CardTitle>
-                    {/* <p className="text-zinc-500">{component.description}</p> */}
+          {results.map((component, id) => {
+            let resultKey = `${component.partNumber}-${id}`;
+            let expandComponent = expandedResult[resultKey] || false;
+            return (
+              <Card
+                key={id}
+                className={`w-full${
+                  expandComponent
+                    ? ""
+                    : " cursor-pointer hover:bg-zinc-100 transition-colors"
+                }`}
+                onClick={() => {
+                  setExpandedResult({
+                    ...expandedSources,
+                    [resultKey]: !expandComponent,
+                  });
+                }}
+              >
+                <CardHeader>
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <div>
+                      <CardTitle className="text-navy-900">
+                        {component.partNumber}
+                      </CardTitle>
+                      {/* <p className="text-zinc-500">{component.description}</p> */}
+                    </div>
+                    {expandComponent ? (
+                      <ChevronUp className="h-4 w-4 text-zinc-500" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-zinc-500" />
+                    )}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  {component.sources.map((source, i) => {
-                    const sourceKey = `${component.partNumber}-${i}`;
-                    const isExpanded = expandedSources[sourceKey] || false;
+                </CardHeader>
+                {expandComponent && (
+                  <CardContent>
+                    <div className="space-y-6">
+                      {component.sources.map((source, i) => {
+                        const sourceKey = `${component.partNumber}-${i}`;
+                        const isExpanded = expandedSources[sourceKey] || false;
 
-                    return (
-                      <div
-                        key={i}
-                        className="border rounded-lg overflow-hidden"
-                      >
-                        <div
-                          className="bg-zinc-50 px-4 py-2 border-b flex justify-between items-center cursor-pointer hover:bg-zinc-100 transition-colors"
-                          onClick={() =>
-                            setExpandedSources({
-                              ...expandedSources,
-                              [sourceKey]: !isExpanded,
-                            })
-                          }
-                        >
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={
-                                "/images/logos/" +
-                                source.name.replace(".com", "").toLowerCase() +
-                                ".png"
+                        return (
+                          <div
+                            key={i}
+                            className="border rounded-lg overflow-hidden"
+                          >
+                            <div
+                              className="bg-zinc-50 px-4 py-2 border-b flex justify-between items-center cursor-pointer hover:bg-zinc-100 transition-colors"
+                              onClick={() =>
+                                setExpandedSources({
+                                  ...expandedSources,
+                                  [sourceKey]: !isExpanded,
+                                })
                               }
-                              alt={source.name}
-                              width={80}
-                              height={20}
-                              className="h-5 w-auto"
-                            />
-                            <h4 className="font-medium text-navy-900">
-                              {source.name}
-                            </h4>
-                            <span className="text-xs text-zinc-500">
-                              ({source.listings.length} listings)
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <a
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:underline text-xs flex items-center gap-1"
-                              onClick={(e) => e.stopPropagation()}
                             >
-                              View on {source.name}{" "}
-                              <ExternalLink className="h-3 w-3" />
-                            </a>
-                            {isExpanded ? (
-                              <ChevronUp className="h-4 w-4 text-zinc-500" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4 text-zinc-500" />
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src={
+                                    "/images/logos/" +
+                                    source.name
+                                      .replace(".com", "")
+                                      .toLowerCase() +
+                                    ".png"
+                                  }
+                                  alt={source.name}
+                                  width={80}
+                                  height={20}
+                                  className="h-5 w-auto"
+                                />
+                                <h4 className="font-medium text-navy-900">
+                                  {source.name}
+                                </h4>
+                                <span className="text-xs text-zinc-500">
+                                  ({source.listings.length} listings)
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={source.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-500 hover:underline text-xs flex items-center gap-1"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  View on {source.name}{" "}
+                                  <ExternalLink className="h-3 w-3" />
+                                </a>
+                                {isExpanded ? (
+                                  <ChevronUp className="h-4 w-4 text-zinc-500" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4 text-zinc-500" />
+                                )}
+                              </div>
+                            </div>
+                            {isExpanded && (
+                              <div className="overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                  <thead>
+                                    <tr className="border-b bg-zinc-50">
+                                      <th className="text-left py-2 px-3 text-xs">
+                                        Distributor
+                                      </th>
+                                      <th className="text-left py-2 px-3 text-xs">
+                                        Manufacturer
+                                      </th>
+                                      <th className="text-left py-2 px-3 text-xs">
+                                        Part #
+                                      </th>
+                                      <th className="text-left py-2 px-3 text-xs">
+                                        Stock
+                                      </th>
+                                      <th
+                                        className="text-left py-2 px-3 text-xs"
+                                        colSpan={3}
+                                      >
+                                        Price Breaks
+                                      </th>
+                                      <th className="text-left py-2 px-3 text-xs"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {source.listings.map((listing, index) => (
+                                      <tr
+                                        key={index}
+                                        className="border-b hover:bg-zinc-50"
+                                      >
+                                        <td className="py-2 px-3 font-medium text-xs">
+                                          {listing.distributor}
+                                        </td>
+                                        <td className="py-2 px-3 text-xs">
+                                          {listing.manufacturer}
+                                        </td>
+                                        <td className="py-2 px-3 text-xs">
+                                          {listing.partNumber}
+                                        </td>
+                                        <td className="py-2 px-3 text-xs">
+                                          {listing.stock}
+                                        </td>
+                                        <td className="py-2 px-3 text-xs">
+                                          {listing.prices &&
+                                          listing.prices.length > 0 ? (
+                                            <div className="flex flex-col gap-1">
+                                              {listing.prices
+                                                .slice(0, 3)
+                                                .map((pb, i) => (
+                                                  <div key={i}>
+                                                    <b>{pb.quantity}</b>:{" "}
+                                                    {pb.price}
+                                                  </div>
+                                                ))}
+                                            </div>
+                                          ) : (
+                                            <span className="text-zinc-400">
+                                              No prices
+                                            </span>
+                                          )}
+                                        </td>
+                                        <td className="py-2 px-3">
+                                          <Button
+                                            size="sm"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-7 px-2"
+                                          >
+                                            Buy
+                                          </Button>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
                             )}
                           </div>
-                        </div>
-                        {isExpanded && (
-                          <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
-                              <thead>
-                                <tr className="border-b bg-zinc-50">
-                                  <th className="text-left py-2 px-3 text-xs">
-                                    Distributor
-                                  </th>
-                                  <th className="text-left py-2 px-3 text-xs">
-                                    Manufacturer
-                                  </th>
-                                  <th className="text-left py-2 px-3 text-xs">
-                                    Part #
-                                  </th>
-                                  <th className="text-left py-2 px-3 text-xs">
-                                    Stock
-                                  </th>
-                                  <th
-                                    className="text-left py-2 px-3 text-xs"
-                                    colSpan={3}
-                                  >
-                                    Price Breaks
-                                  </th>
-                                  <th className="text-left py-2 px-3 text-xs"></th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {source.listings.map((listing, index) => (
-                                  <tr
-                                    key={index}
-                                    className="border-b hover:bg-zinc-50"
-                                  >
-                                    <td className="py-2 px-3 font-medium text-xs">
-                                      {listing.distributor}
-                                    </td>
-                                    <td className="py-2 px-3 text-xs">
-                                      {listing.manufacturer}
-                                    </td>
-                                    <td className="py-2 px-3 text-xs">
-                                      {listing.partNumber}
-                                    </td>
-                                    <td className="py-2 px-3 text-xs">
-                                      {listing.stock}
-                                    </td>
-                                    <td className="py-2 px-3 text-xs">
-                                      {listing.prices &&
-                                      listing.prices.length > 0 ? (
-                                        <div className="flex flex-col gap-1">
-                                          {listing.prices
-                                            .slice(0, 3)
-                                            .map((pb, i) => (
-                                              <div key={i}>
-                                                <b>{pb.quantity}</b>: {pb.price}
-                                              </div>
-                                            ))}
-                                        </div>
-                                      ) : (
-                                        <span className="text-zinc-400">
-                                          No prices
-                                        </span>
-                                      )}
-                                    </td>
-                                    <td className="py-2 px-3">
-                                      <Button
-                                        size="sm"
-                                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-7 px-2"
-                                      >
-                                        Buy
-                                      </Button>
-                                    </td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                )}
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
