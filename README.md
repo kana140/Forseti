@@ -1,34 +1,37 @@
-FORSETI
+# Component Scraper
 
-- scraper
+A web application for searching and aggregating electronic component data across multiple sourcing sites.  
+The goal is to provide specialists with a single interface to look up part numbers (MPNs), view supplier listings, and compare stock, pricing, and availability.  
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Features
 
-## Getting Started
+- 🔍 **Search by part number (MPN)**  
+- 🧩 **Aggregated results** grouped by `partNumber → website → listings`  
+- 📊 **Nested supplier breakdowns** including distributor ID, links, and stock levels  
+- ⏱ **Asynchronous web scraping** for faster data collection across multiple sources  
+- ⚡ **React/Next.js frontend** with Tailwind CSS for a clean, responsive UI  
+- 🖥 **Flask API backend** powered by `aiohttp` + BeautifulSoup  
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Frontend**  
+- [Next.js 15](https://nextjs.org/)  
+- [React](https://react.dev/)  
+- [TypeScript](https://www.typescriptlang.org/)  
+- [Tailwind CSS](https://tailwindcss.com/)  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Backend**  
+- [Python 3.11+](https://www.python.org/)  
+- [Flask](https://flask.palletsprojects.com/)  
+- [aiohttp](https://docs.aiohttp.org/)  
+- [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Deployment**  
+- Frontend: Firebase Hosting (experiments)  
+- Backend: Render (Flask API)  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Roadmap
+ 
+- Add UI filters (stock thresholds, distributor filters)
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Enable periodic crawling to pre-cache MPNs (where allowed)
