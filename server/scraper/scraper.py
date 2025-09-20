@@ -66,29 +66,34 @@ async def process_scrape(session, url, headers, key, scrape_function):
     }
 
 def clean_data(data):
-    filteredData = []
-    # Removes data with 0 stock and removes non numerical characters 
-    dictKey = list(data.keys())[0]
-    items = data[dictKey]
-    for part in items:
-        stock = part["stock"]
-        if stock.isnumeric() != True:
-            part["stock"] = re.sub(r'\D', '', stock)
-        if part["stock"] != "":
-            if int(part["stock"]) != 0: 
-                filteredData.append(part)
-        # makes sure price has $ in front of it 
-        # if "price" in part:
-        #     price = part["price"]
-        #     if price != "":
-        #         if price[0] != "$":
-        #             if price[0].isnumeric():
-        #                 part["price"] = "$" + price
-        #             else:
-        #                 part["price"] = "$" + price[1:]
-    data[dictKey] = filteredData
+    print(f"Data scraped before cleaning: {data}")
+    if (data != None and isinstance(data, list)):
+        filteredData = []
+        # Removes data with 0 stock and removes non numerical characters 
+        dictKey = list(data.keys())[0]
+        items = data[dictKey]
+        for part in items:
+            stock = part["stock"]
+            if stock.isnumeric() != True:
+                part["stock"] = re.sub(r'\D', '', stock)
+            if part["stock"] != "":
+                if int(part["stock"]) != 0: 
+                    filteredData.append(part)
+            # makes sure price has $ in front of it 
+            # if "price" in part:
+            #     price = part["price"]
+            #     if price != "":
+            #         if price[0] != "$":
+            #             if price[0].isnumeric():
+            #                 part["price"] = "$" + price
+            #             else:
+            #                 part["price"] = "$" + price[1:]
+        data[dictKey] = filteredData
     return data
 
+def scrape_all(data):
+    partsDictionary = {}
+    return partsDictionary
 
 def scrape_oemtrade(data):
     partsDictionary = {}
@@ -204,5 +209,3 @@ def scrape_findchips(data):
                 })
     return partsDictionary
 
-
-#def compile_results()
