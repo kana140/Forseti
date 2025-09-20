@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { ExternalLink } from "lucide-react";
+import { NoSearchResults } from "./no-search-results";
 
 interface SearchResultsProp {
   data: {
@@ -69,7 +70,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
   const [expandedSources, setExpandedSources] = useState<{
     [key: string]: boolean;
   }>({});
-  const [expandedResult, setExpandedResult] = useState<{
+  const [expandedResults, setExpandedResults] = useState<{
     [key: string]: boolean;
   }>({});
 
@@ -118,7 +119,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
           newExpandedSources[key] = sourceIdx === 0; // Expand first source of each component
         });
       });
-      setExpandedResult(expandedSearchResults);
+      setExpandedResults(expandedSearchResults);
       setExpandedSources(newExpandedSources);
     }
   }, [results]);
@@ -186,31 +187,24 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
       </div>
 
       {results.length === 0 ? (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium text-navy-900">
-            No components found
-          </h3>
-          <p className="text-zinc-500 mt-2">
-            Try a different search term or browse categories
-          </p>
-        </div>
+        <NoSearchResults />
       ) : (
         <div className="space-y-6">
           {results.map((component, id) => {
             const resultKey = `${component.partNumber}-${id}`;
-            const expandComponent = expandedResult[resultKey] || false;
+            const expandResult = expandedResults[resultKey] || false;
             return (
               <Card
                 key={id}
                 className={`w-full${
-                  expandComponent
+                  expandResult
                     ? ""
                     : " cursor-pointer hover:bg-zinc-100 transition-colors"
                 }`}
                 onClick={() => {
-                  setExpandedResult({
-                    ...expandedSources,
-                    [resultKey]: !expandComponent,
+                  setExpandedResults({
+                    ...expandedResults,
+                    [resultKey]: !expandResult,
                   });
                 }}
               >
@@ -220,16 +214,15 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
                       <CardTitle className="text-navy-900">
                         {component.partNumber}
                       </CardTitle>
-                      {/* <p className="text-zinc-500">{component.description}</p> */}
                     </div>
-                    {expandComponent ? (
+                    {expandResult ? (
                       <ChevronUp className="h-4 w-4 text-zinc-500" />
                     ) : (
                       <ChevronDown className="h-4 w-4 text-zinc-500" />
                     )}
                   </div>
                 </CardHeader>
-                {expandComponent && (
+                {expandResult && (
                   <CardContent>
                     <div className="space-y-6">
                       {component.sources.map((source, i) => {
@@ -357,7 +350,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
                                             size="sm"
                                             className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-7 px-2"
                                           >
-                                            Buy
+                                            View
                                           </Button>
                                         </td>
                                       </tr>

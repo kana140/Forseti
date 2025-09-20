@@ -47,8 +47,8 @@ export default function Home() {
                 Find Electronic Components Instantly
               </h1>
               <p className="mx-auto max-w-[700px] text-zinc-200 md:text-xl">
-                Search across multiple suppliers to find the best prices and
-                availability for electronic components.
+                Search across multiple sourcing sites to find the best prices
+                and availability for electronic components.
               </p>
               <div className="w-full max-w-2xl mx-auto mt-6">
                 <SearchBar fetchData={fetchData} setIsLoading={setIsLoading} />
