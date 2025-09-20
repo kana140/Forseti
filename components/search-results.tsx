@@ -110,8 +110,9 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
       const newExpandedSources: { [key: string]: boolean } = {};
       const expandedSearchResults: { [key: string]: boolean } = {};
       results.forEach((component, cIndex) => {
-        let partNumber = component.partNumber;
-        expandedSearchResults[`${partNumber}-${cIndex}`] = partNumber === query;
+        const partNumber = component.partNumber;
+        expandedSearchResults[`${partNumber}-${cIndex}`] =
+          partNumber.toLowerCase() === query.toLowerCase();
         component.sources.forEach((source, sourceIdx) => {
           const key = `${partNumber}-${sourceIdx}`;
           newExpandedSources[key] = sourceIdx === 0; // Expand first source of each component
@@ -196,8 +197,8 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
       ) : (
         <div className="space-y-6">
           {results.map((component, id) => {
-            let resultKey = `${component.partNumber}-${id}`;
-            let expandComponent = expandedResult[resultKey] || false;
+            const resultKey = `${component.partNumber}-${id}`;
+            const expandComponent = expandedResult[resultKey] || false;
             return (
               <Card
                 key={id}

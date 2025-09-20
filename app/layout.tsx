@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Forseti",
   description:
-    "Searches across multiple websites to find the best prices and availability for electronic components.",
+    "Searches across multiple sourcing sites to find the best prices and availability for electronic components.",
   icons: {
     icon: "/circuit-board.svg",
   },
