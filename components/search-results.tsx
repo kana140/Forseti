@@ -201,14 +201,15 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
                     ? ""
                     : " cursor-pointer hover:bg-zinc-100 transition-colors"
                 }`}
-                onClick={() => {
-                  setExpandedResults({
-                    ...expandedResults,
-                    [resultKey]: !expandResult,
-                  });
-                }}
               >
-                <CardHeader>
+                <CardHeader
+                  onClick={() => {
+                    setExpandedResults({
+                      ...expandedResults,
+                      [resultKey]: !expandResult,
+                    });
+                  }}
+                >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                     <div>
                       <CardTitle className="text-navy-900">
@@ -236,12 +237,13 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
                           >
                             <div
                               className="bg-zinc-50 px-4 py-2 border-b flex justify-between items-center cursor-pointer hover:bg-zinc-100 transition-colors"
-                              onClick={() =>
+                              onClick={(event) => {
+                                event.stopPropagation();
                                 setExpandedSources({
                                   ...expandedSources,
                                   [sourceKey]: !isExpanded,
-                                })
-                              }
+                                });
+                              }}
                             >
                               <div className="flex items-center gap-2">
                                 <Image

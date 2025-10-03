@@ -30,7 +30,7 @@ export function SearchBar({ fetchData, setIsLoading }: SearchBarProps) {
 
     const startTime = Date.now();
 
-    if (query.trim()) {
+    if (query) {
       fetchData(query).then(() => {
         const elapsed = Date.now() - startTime;
         const remaining = MIN_SPINNER_TIME - elapsed;
@@ -50,7 +50,7 @@ export function SearchBar({ fetchData, setIsLoading }: SearchBarProps) {
           type="text"
           placeholder="Enter component part number (e.g., 1N4148W-TP)"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQuery(e.target.value.trim())}
           className="w-full pl-4 pr-12 py-6 rounded-lg bg-white text-navy-900 placeholder:text-zinc-400 focus-visible:ring-blue-500"
         />
         <Button
