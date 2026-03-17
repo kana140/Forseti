@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -99,7 +98,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
               })),
             };
           }),
-        })
+        }),
       );
 
       setResults(transformedResults);

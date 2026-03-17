@@ -13,6 +13,14 @@ CORS(app, resources={r"/*": {"origins": [
 def run_scraper(searchQuery):
     searchQuery = searchQuery.strip()
     result = asyncio.run(scrape_async(searchQuery))
+cache = Cache(app, config={
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379"),
+    "CACHE_DEFAULT_TIMEOUT": 1200  # 20 minutes
+})
+
+def run_scraper(queries):
+    result = asyncio.run(scrape_async(queries))
     return result
 
 

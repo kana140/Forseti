@@ -18,7 +18,10 @@ async def fetch(session, url, headers):
         print(f"Scraping failed for {url}: {e}")
         return None
 
-async def scrape_async(searchQuery):
+async def scrape_async(queries):
+    if isinstance(queries, str):
+        queries = [queries]
+
     headers = {
     "authority": HEADERS["authority"],
     "accept": HEADERS["accept"],
@@ -30,14 +33,16 @@ async def scrape_async(searchQuery):
 
     async with aiohttp.ClientSession() as session:
         tasks = []
-        for key, value in SCRAPE_URLS.items():
-            url = value[0] + searchQuery
-            scrape_function = globals().get(value[1])
-            if scrape_function:
-                tasks.append(process_scrape(session, url, headers, key, scrape_function))
+        for query in queries:
+            for key, value in SCRAPE_URLS.items():
+                url = value[0] + query
+                scrape_function = globals().get(value[1])
+                if scrape_function:
+                    tasks.append(process_scrape(session, url, headers, key, scrape_function))
         results = await asyncio.gather(*tasks)
-        
-    # Combine into final format
+
+    # Combine into final format; if the same (part_number, source) appears across
+    # multiple query variants, keep the first result (don't overwrite with duplicates)
     combined_data = {}
     for source, result in results:
         if not result:
@@ -46,10 +51,11 @@ async def scrape_async(searchQuery):
         for part_number, entries in products.items():
             if part_number not in combined_data:
                 combined_data[part_number] = {}
-            combined_data[part_number][source] = {
-                "productData": entries,
-                "websiteLink": result["websiteLink"]
-            }
+            if source not in combined_data[part_number]:
+                combined_data[part_number][source] = {
+                    "productData": entries,
+                    "websiteLink": result["websiteLink"]
+                }
 
     return combined_data
 
