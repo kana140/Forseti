@@ -10,6 +10,7 @@ import os
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [
     "http://localhost:3000",
+    "https://forseti-puce.vercel.app",
     "https://component-scraper--forseti-305ad.europe-west4.hosted.app"
     ]}})
 
