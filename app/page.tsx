@@ -20,6 +20,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
 
   async function fetchData(query: string): Promise<void> {
+    setData((prev) => ({ ...prev, searchQuery: query }));
+
     if (cache.has(query)) {
       setData(cache.get(query));
       setIsLoading(false);
