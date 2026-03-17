@@ -23,3 +23,8 @@ HEADERS = {
     "cacheControl": "max-age=0",
     "contentType": "application/json",
 }
+
+COMMON_SUFFIXES = [
+    "TP","TR","T/R","REEL","R","RL","CT","TAPE","BK","LF","G","GZ","GS","PBF","PBFREE",
+    "N","NA","ND","WG","W","T13","T5","T7","T10"
+]
