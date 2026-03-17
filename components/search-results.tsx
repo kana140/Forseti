@@ -121,7 +121,7 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
       setExpandedResults(expandedSearchResults);
       setExpandedSources(newExpandedSources);
     }
-  }, [results]);
+  }, [results, query]);
 
   if (!query) {
     return (

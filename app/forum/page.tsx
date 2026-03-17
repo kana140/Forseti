@@ -1,10 +1,9 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { SearchBar } from "@/components/search-bar";
 import { Card, CardHeader } from "@/components/ui/card";
 
 export default function ForumPage() {
-  let mockForumData = [
+  const mockForumData = [
     {
       user: "Hale The Idiot Anana",
       post: "I think I am stupid",
@@ -40,9 +39,9 @@ export default function ForumPage() {
           <div className="container px-4 md:px-6">
             {/* <SearchResults data={data} isLoading={isLoading} /> */}
             {/* temporary search results, make the searchresults/searchbar modular */}
-            {mockForumData.map((mockData) => {
+            {mockForumData.map((mockData, index) => {
               return (
-                <Card>
+                <Card key={index}>
                   {" "}
                   {mockData.user}
                   {mockData.post}
