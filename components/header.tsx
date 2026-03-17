@@ -11,20 +11,23 @@ export function Header() {
             <span className="font-bold text-xl">Forseti</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
-            {/* <Link href="/" className="text-sm font-medium hover:text-zinc-200">
+            <Link href="/" className="text-sm font-medium hover:text-zinc-200">
               Home
-            </Link> */}
-            {/* <Link href="/" className="text-sm font-medium hover:text-zinc-200">
-              About
             </Link>
-            <Link href="#" className="text-sm font-medium hover:text-zinc-200">
+            <Link
+              href="/forum"
+              className="text-sm font-medium hover:text-zinc-200"
+            >
+              Forum
+            </Link>
+            {/* <Link href="#" className="text-sm font-medium hover:text-zinc-200">
               Suppliers
             </Link>
             <Link href="#" className="text-sm font-medium hover:text-zinc-200">
               Contact
             </Link> */}
           </nav>
-          <div className="flex items-center space-x-2"></div>
+          {/* <div className="flex items-center space-x-2"></div> */}
         </div>
       </div>
     </header>
