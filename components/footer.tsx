@@ -37,84 +37,10 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/forum"
                   className="text-zinc-300 hover:text-white text-sm"
                 >
-                  Suppliers
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-medium text-lg mb-4">Resources</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Datasheets
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Component Guides
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  API Documentation
-                </Link>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-medium text-lg mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className="text-zinc-300 hover:text-white text-sm"
-                >
-                  Cookie Policy
+                  Forum
                 </Link>
               </li>
             </ul>
