@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { SearchBar } from "@/components/search-bar";
 import { SearchResults } from "@/components/search-results";

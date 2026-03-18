@@ -1,5 +1,4 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,12 +65,17 @@ type RawApiData = {
 export function SearchResults({ data, isLoading }: SearchResultsProp) {
   const query = data.searchQuery;
   const [results, setResults] = useState<ComponentResult[]>([]);
+  const [showPartialResults, setShowPartialResults] = useState(true);
   const [expandedSources, setExpandedSources] = useState<{
     [key: string]: boolean;
   }>({});
   const [expandedResults, setExpandedResults] = useState<{
     [key: string]: boolean;
   }>({});
+
+  const displayedResults = showPartialResults
+    ? results
+    : results.filter((c) => c.partNumber.toUpperCase() === query.toUpperCase());
 
   useEffect(() => {
     if (data?.data) {
@@ -182,14 +186,27 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
         <h2 className="text-2xl font-bold text-navy-900">
           Results for &quot;{query}&quot;
         </h2>
-        <p className="text-zinc-500">{results.length} components found</p>
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 text-sm text-zinc-500 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showPartialResults}
+              className="w-4 h-4 accent-blue-500 cursor-pointer"
+              onChange={(e) => setShowPartialResults(e.target.checked)}
+            />
+            Show partial results
+          </label>
+          <p className="text-zinc-500">
+            {displayedResults.length} components found
+          </p>
+        </div>
       </div>
 
-      {results.length === 0 ? (
+      {displayedResults.length === 0 ? (
         <NoSearchResults />
       ) : (
         <div className="space-y-6">
-          {results.map((component, id) => {
+          {displayedResults.map((component, id) => {
             const resultKey = `${component.partNumber}-${id}`;
             const expandResult = expandedResults[resultKey] || false;
             return (
