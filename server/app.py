@@ -77,25 +77,39 @@ def generate_variants(query):
 @app.route('/api/search', methods=['GET'])
 def search():
     searchQuery = request.args.get('q')
+    if not searchQuery:
+        return jsonify({"error": "Missing query parameter"}), 400
+
     queries = generate_variants(searchQuery)
     cache_key = queries[-1]  # most-stripped variant as the canonical key
     print(f"Received search query: {searchQuery}, searching variants: {queries}, cache key: {cache_key}")
 
     data = cache.get(cache_key)
     if data is None:
-        data = run_scraper(queries)
-        cache.set(cache_key, data)
+        try:
+            data = run_scraper(queries)
+            cache.set(cache_key, data)
+        except Exception as e:
+            print(f"Scraper error: {e}")
+            return jsonify({"searchQuery": searchQuery, "data": {}}), 200
     else:
         print(f"Cache hit for: {cache_key}")
 
-    r.zincrby("popular_searches", 1, cache_key)
+    try:
+        r.zincrby("popular_searches", 1, cache_key)
+    except Exception as e:
+        print(f"Redis popularity tracking failed: {e}")
 
     return jsonify({"searchQuery": searchQuery, "data": data})
 
 @app.route('/api/popular', methods=['GET'])
 def popular():
-    top = r.zrevrange("popular_searches", 0, 4)
-    return jsonify({"queries": [q.decode() for q in top]})
+    try:
+        top = r.zrevrange("popular_searches", 0, 4)
+        return jsonify({"queries": [q.decode() for q in top]})
+    except Exception as e:
+        print(f"Redis popular queries failed: {e}")
+        return jsonify({"queries": []})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
