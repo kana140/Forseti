@@ -6,6 +6,7 @@ from scraper.config import SCRAPE_URLS, COMMON_SUFFIXES
 import asyncio
 import re
 import os
+import redis
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": [
@@ -14,11 +15,15 @@ CORS(app, resources={r"/*": {"origins": [
     "https://component-scraper--forseti-305ad.europe-west4.hosted.app"
     ]}})
 
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+
 cache = Cache(app, config={
     "CACHE_TYPE": "RedisCache",
-    "CACHE_REDIS_URL": os.environ.get("REDIS_URL", "redis://localhost:6379"),
+    "CACHE_REDIS_URL": REDIS_URL,
     "CACHE_DEFAULT_TIMEOUT": 1200  # 20 minutes
 })
+
+r = redis.from_url(REDIS_URL)
 
 def run_scraper(queries):
     result = asyncio.run(scrape_async(queries))
@@ -83,7 +88,14 @@ def search():
     else:
         print(f"Cache hit for: {cache_key}")
 
+    r.zincrby("popular_searches", 1, cache_key)
+
     return jsonify({"searchQuery": searchQuery, "data": data})
+
+@app.route('/api/popular', methods=['GET'])
+def popular():
+    top = r.zrevrange("popular_searches", 0, 4)
+    return jsonify({"queries": [q.decode() for q in top]})
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SearchBar } from "@/components/search-bar";
 import { SearchResults } from "@/components/search-results";
 import { Footer } from "@/components/footer";
@@ -17,6 +17,15 @@ export default function Home() {
   });
   const [cache, setCache] = useState(new Map());
   const [isLoading, setIsLoading] = useState(false);
+  const [popularQueries, setPopularQueries] = useState<string[]>([]);
+
+  useEffect(() => {
+    const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    fetch(`${API_URL}/api/popular`)
+      .then((res) => res.json())
+      .then((result) => setPopularQueries(result.queries ?? []))
+      .catch(() => {});
+  }, []);
 
   async function fetchData(query: string): Promise<void> {
     setData((prev) => ({ ...prev, searchQuery: query }));
@@ -35,6 +44,11 @@ export default function Home() {
     setData(result);
     setCache((prevCache) => new Map(prevCache).set(query, result));
     setIsLoading(false);
+  }
+
+  function handlePopularSearch(query: string) {
+    setIsLoading(true);
+    fetchData(query).then(() => setIsLoading(false));
   }
 
   return (
@@ -59,7 +73,12 @@ export default function Home() {
         </section>
         <section className="py-12">
           <div className="container px-4 md:px-6">
-            <SearchResults data={data} isLoading={isLoading} />
+            <SearchResults
+              data={data}
+              isLoading={isLoading}
+              popularQueries={popularQueries}
+              onPopularSearch={handlePopularSearch}
+            />
           </div>
         </section>
       </main>

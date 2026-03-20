@@ -14,6 +14,8 @@ interface SearchResultsProp {
     searchQuery: string;
   };
   isLoading: boolean;
+  popularQueries: string[];
+  onPopularSearch: (query: string) => void;
 }
 
 type Source = {
@@ -62,7 +64,7 @@ type RawApiData = {
   };
 };
 
-export function SearchResults({ data, isLoading }: SearchResultsProp) {
+export function SearchResults({ data, isLoading, popularQueries, onPopularSearch }: SearchResultsProp) {
   const query = data.searchQuery;
   const [results, setResults] = useState<ComponentResult[]>([]);
   const [showPartialResults, setShowPartialResults] = useState(true);
@@ -130,22 +132,19 @@ export function SearchResults({ data, isLoading }: SearchResultsProp) {
   if (!query) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-navy-900">Popular Components</h2>
+        <h2 className="text-2xl font-bold text-navy-900">Most Searched</h2>
         <p className="text-zinc-500 mt-2">
           Search for a component to see results
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          {["Microcontrollers", "Resistors", "Capacitors"].map((category) => (
-            <Card key={category} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle>{category}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-zinc-500">
-                  Browse popular {category.toLowerCase()}
-                </p>
-              </CardContent>
-            </Card>
+        <div className="flex flex-wrap justify-center gap-3 mt-8">
+          {popularQueries.map((q) => (
+            <button
+              key={q}
+              onClick={() => onPopularSearch(q)}
+              className="px-4 py-2 rounded-full border border-zinc-200 text-sm font-medium text-navy-900 hover:bg-zinc-100 transition-colors"
+            >
+              {q}
+            </button>
           ))}
         </div>
       </div>
