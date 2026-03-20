@@ -20,6 +20,7 @@ function HomeContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [popularQueries, setPopularQueries] = useState<string[]>([]);
   const cache = useRef(new Map());
+  const MAX_CACHE_SIZE = 20;
 
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -36,6 +37,8 @@ function HomeContent() {
       return;
     }
 
+    const abortController = new AbortController();
+
     setIsLoading(true);
     setData((prev) => ({ ...prev, searchQuery: query }));
 
@@ -46,13 +49,25 @@ function HomeContent() {
     }
 
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-    fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`)
+    fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`, {
+      signal: abortController.signal,
+    })
       .then((res) => res.json())
       .then((result) => {
-        setData(result);
+        if (cache.current.size >= MAX_CACHE_SIZE) {
+          cache.current.delete(cache.current.keys().next().value);
+        }
         cache.current.set(query, result);
+        setData(result);
         setIsLoading(false);
+      })
+      .catch((err) => {
+        if (err.name !== "AbortError") {
+          setIsLoading(false);
+        }
       });
+
+    return () => abortController.abort();
   }, [query]);
 
   function handlePopularSearch(q: string) {
