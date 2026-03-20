@@ -112,7 +112,7 @@ export function SearchResults({ data, isLoading, popularQueries, onPopularSearch
   }, [data]);
 
   useEffect(() => {
-    if (Object.keys(results).length > 0) {
+    if (results.length > 0) {
       const newExpandedSources: { [key: string]: boolean } = {};
       const expandedSearchResults: { [key: string]: boolean } = {};
       results.forEach((component, cIndex) => {
@@ -218,11 +218,21 @@ export function SearchResults({ data, isLoading, popularQueries, onPopularSearch
                 }`}
               >
                 <CardHeader
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     setExpandedResults({
                       ...expandedResults,
                       [resultKey]: !expandResult,
                     });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setExpandedResults({
+                        ...expandedResults,
+                        [resultKey]: !expandResult,
+                      });
+                    }
                   }}
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
@@ -251,6 +261,8 @@ export function SearchResults({ data, isLoading, popularQueries, onPopularSearch
                             className="border rounded-lg overflow-hidden"
                           >
                             <div
+                              role="button"
+                              tabIndex={0}
                               className="bg-zinc-50 px-4 py-2 border-b flex justify-between items-center cursor-pointer hover:bg-zinc-100 transition-colors"
                               onClick={(event) => {
                                 event.stopPropagation();
@@ -258,6 +270,15 @@ export function SearchResults({ data, isLoading, popularQueries, onPopularSearch
                                   ...expandedSources,
                                   [sourceKey]: !isExpanded,
                                 });
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === " ") {
+                                  e.stopPropagation();
+                                  setExpandedSources({
+                                    ...expandedSources,
+                                    [sourceKey]: !isExpanded,
+                                  });
+                                }
                               }}
                             >
                               <div className="flex items-center gap-2">
