@@ -1,46 +1,18 @@
 "use client";
 import type React from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-interface SearchBarProps {
-  fetchData: (query: string) => Promise<void>;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export function SearchBar({ fetchData, setIsLoading }: SearchBarProps) {
+export function SearchBar() {
   const [query, setQuery] = useState("");
-  const MIN_SPINNER_TIME = 500; // ms
+  const router = useRouter();
 
-  // const handleSearch = (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //   setQuery(query); // trigger effect
-  // };
-
-  // useEffect(() => {
-  //   if (!query) return;
-  //   fetchData(query);
-  // }, [query]);
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    const startTime = Date.now();
-
-    if (query) {
-      fetchData(query).then(() => {
-        const elapsed = Date.now() - startTime;
-        const remaining = MIN_SPINNER_TIME - elapsed;
-        if (remaining > 0) {
-          setTimeout(() => setIsLoading(false), remaining);
-        } else {
-          setIsLoading(false);
-        }
-      });
-    }
+    if (query) router.push(`/?q=${encodeURIComponent(query)}`);
   };
 
   return (

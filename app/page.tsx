@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { SearchBar } from "@/components/search-bar";
 import { SearchResults } from "@/components/search-results";
 import { Footer } from "@/components/footer";
@@ -10,14 +11,15 @@ interface SearchData {
   searchQuery: string;
 }
 
-export default function Home() {
-  const [data, setData] = useState<SearchData>({
-    data: {},
-    searchQuery: "",
-  });
-  const [cache, setCache] = useState(new Map());
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const query = searchParams.get("q") ?? "";
+
+  const [data, setData] = useState<SearchData>({ data: {}, searchQuery: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [popularQueries, setPopularQueries] = useState<string[]>([]);
+  const cache = useRef(new Map());
 
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -27,28 +29,34 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  async function fetchData(query: string): Promise<void> {
+  useEffect(() => {
+    if (!query) {
+      setData({ data: {}, searchQuery: "" });
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
     setData((prev) => ({ ...prev, searchQuery: query }));
 
-    if (cache.has(query)) {
-      setData(cache.get(query));
+    if (cache.current.has(query)) {
+      setData(cache.current.get(query));
       setIsLoading(false);
       return;
     }
 
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const requestUrl = `${API_URL}/api/search?q=${query}`;
-    const response = await fetch(requestUrl);
-    const result = await response.json();
-    console.log(result);
-    setData(result);
-    setCache((prevCache) => new Map(prevCache).set(query, result));
-    setIsLoading(false);
-  }
+    fetch(`${API_URL}/api/search?q=${encodeURIComponent(query)}`)
+      .then((res) => res.json())
+      .then((result) => {
+        setData(result);
+        cache.current.set(query, result);
+        setIsLoading(false);
+      });
+  }, [query]);
 
-  function handlePopularSearch(query: string) {
-    setIsLoading(true);
-    fetchData(query).then(() => setIsLoading(false));
+  function handlePopularSearch(q: string) {
+    router.push(`/?q=${encodeURIComponent(q)}`);
   }
 
   return (
@@ -66,7 +74,7 @@ export default function Home() {
                 and availability for electronic components.
               </p>
               <div className="w-full max-w-2xl mx-auto mt-6">
-                <SearchBar fetchData={fetchData} setIsLoading={setIsLoading} />
+                <SearchBar />
               </div>
             </div>
           </div>
@@ -84,5 +92,13 @@ export default function Home() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }
