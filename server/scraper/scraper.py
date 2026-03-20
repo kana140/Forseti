@@ -12,7 +12,8 @@ import asyncio
 
 async def fetch(session, url, headers):
     try:
-        async with session.get(url, headers=headers) as response:
+        timeout = aiohttp.ClientTimeout(total=15)
+        async with session.get(url, headers=headers, timeout=timeout) as response:
             return await response.text()
     except Exception as e:
         print(f"Scraping failed for {url}: {e}")
@@ -63,7 +64,7 @@ async def process_scrape(session, url, headers, key, scrape_function):
     html = await fetch(session, url, headers)
     if not html:
         return key, None
-    
+
     soup = bs4.BeautifulSoup(html, 'lxml')
     jsonResult = clean_data(scrape_function(soup))
     return key, {
@@ -72,10 +73,9 @@ async def process_scrape(session, url, headers, key, scrape_function):
     }
 
 def clean_data(data):
-    print(f"Data scraped before cleaning: {data}")
     if (data != None and isinstance(data, list)):
         filteredData = []
-        # Removes data with 0 stock and removes non numerical characters 
+        # Removes data with 0 stock and removes non numerical characters
         dictKey = list(data.keys())[0]
         items = data[dictKey]
         for part in items:
@@ -83,17 +83,8 @@ def clean_data(data):
             if stock.isnumeric() != True:
                 part["stock"] = re.sub(r'\D', '', stock)
             if part["stock"] != "":
-                if int(part["stock"]) != 0: 
+                if int(part["stock"]) != 0:
                     filteredData.append(part)
-            # makes sure price has $ in front of it 
-            # if "price" in part:
-            #     price = part["price"]
-            #     if price != "":
-            #         if price[0] != "$":
-            #             if price[0].isnumeric():
-            #                 part["price"] = "$" + price
-            #             else:
-            #                 part["price"] = "$" + price[1:]
         data[dictKey] = filteredData
     return data
 
@@ -103,7 +94,7 @@ def scrape_all(data):
 
 def scrape_oemtrade(data):
     partsDictionary = {}
-    partElems = data.find_all('div', class_='distributor-results')
+    partElems = data.find_all('section', class_='distributor-results')
     for part in partElems:
         offers = part.find_all("tr", class_="row")
         if (len(offers) != 0):
@@ -147,11 +138,11 @@ def scrape_octopart(data):
                 prices = offer.select('[data-sentry-component="PriceAtQty"]')[:3]
                 price = offer.select_one('[data-sentry-component="PriceAtQty"]').get_text(strip=True)
                 priceRange = [1, 10, 100]
-                
+
                 formattedPrices = [
                     {"quantity": priceRange[i], "price": f"${p.get_text(strip=True)}"}
                     for i, (p) in enumerate(prices)
-                ]    
+                ]
                 link = offer.select_one('[data-sentry-component="Sku"]').find('a')['href']
                 partsDictionary[partNumber].append({
                 "distributor": distributor,
@@ -191,7 +182,6 @@ def scrape_findchips(data):
                 if partNumber not in partsDictionary:
                     partsDictionary[partNumber] = []
 
-                # price = part.select('td.td-price-range')[0].get_text(strip=True)
                 price = part.get('data-price')
                 stock = part.get('data-stock')
                 manufacturer = part.get('data-mfr')
@@ -214,4 +204,3 @@ def scrape_findchips(data):
                 "link": link
                 })
     return partsDictionary
-
