@@ -10,7 +10,7 @@ export default function ForumPage() {
           <h1 className="text-3xl font-bold text-navy-900">Forum</h1>
           <p className="text-zinc-500 mt-2">Coming soon</p>
         </div>
-      </main>
+      </main> 
       <Footer />
     </div>
   );
