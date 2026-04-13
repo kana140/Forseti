@@ -62,7 +62,7 @@ def generate_variants(query):
     return variants
 
 
-@app.route(route="api/search", methods=["GET"])
+@app.route(route="search", methods=["GET"])
 def search(req: func.HttpRequest) -> func.HttpResponse:
     search_query = req.params.get("q")
     if not search_query:
@@ -104,7 +104,7 @@ def search(req: func.HttpRequest) -> func.HttpResponse:
     )
 
 
-@app.route(route="api/popular", methods=["GET"])
+@app.route(route="popular", methods=["GET"])
 def popular(req: func.HttpRequest) -> func.HttpResponse:
     try:
         top = r.zrevrange("popular_searches", 0, 4)
