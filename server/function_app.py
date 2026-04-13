@@ -1,33 +1,20 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from flask_caching import Cache
-from scraper.scraper import scrape_async
-from scraper.config import SCRAPE_URLS, COMMON_SUFFIXES
+import azure.functions as func
 import asyncio
 import re
 import os
+import json
 import redis
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": [
-    "http://localhost:3000",
-    "https://forseti-puce.vercel.app",
-    "https://component-scraper--forseti-305ad.europe-west4.hosted.app"
-    ]}})
+from scraper.scraper import scrape_async
+from scraper.config import COMMON_SUFFIXES
+
+app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
-
-cache = Cache(app, config={
-    "CACHE_TYPE": "RedisCache",
-    "CACHE_REDIS_URL": REDIS_URL,
-    "CACHE_DEFAULT_TIMEOUT": 1200  # 20 minutes
-})
+CACHE_TTL = 1200  # 20 minutes
 
 r = redis.from_url(REDIS_URL)
 
-def run_scraper(queries):
-    result = asyncio.run(scrape_async(queries))
-    return result
 
 def generate_variants(query):
     """Generate search query variants by progressively stripping ordering-code suffixes.
@@ -74,44 +61,62 @@ def generate_variants(query):
 
     return variants
 
-@app.route('/api/search', methods=['GET'])
-def search():
-    searchQuery = request.args.get('q')
-    if not searchQuery:
-        return jsonify({"error": "Missing query parameter"}), 400
 
-    queries = generate_variants(searchQuery)
+@app.route(route="api/search", methods=["GET"])
+def search(req: func.HttpRequest) -> func.HttpResponse:
+    search_query = req.params.get("q")
+    if not search_query:
+        return func.HttpResponse(
+            json.dumps({"error": "Missing query parameter"}),
+            status_code=400,
+            mimetype="application/json"
+        )
+
+    queries = generate_variants(search_query)
     cache_key = queries[-1]  # most-stripped variant as the canonical key
-    print(f"Received search query: {searchQuery}, searching variants: {queries}, cache key: {cache_key}")
+    print(f"Received search query: {search_query}, searching variants: {queries}, cache key: {cache_key}")
 
-    data = cache.get(cache_key)
-    if data is None:
+    cached = r.get(cache_key)
+    if cached is not None:
+        print(f"Cache hit for: {cache_key}")
+        data = json.loads(cached)
+    else:
         try:
-            data = run_scraper(queries)
-            cache.set(cache_key, data)
+            data = asyncio.run(scrape_async(queries))
+            r.setex(cache_key, CACHE_TTL, json.dumps(data))
         except Exception as e:
             print(f"Scraper error: {e}")
-            return jsonify({"searchQuery": searchQuery, "data": {}}), 200
-    else:
-        print(f"Cache hit for: {cache_key}")
+            return func.HttpResponse(
+                json.dumps({"searchQuery": search_query, "data": {}}),
+                status_code=200,
+                mimetype="application/json"
+            )
 
     try:
         r.zincrby("popular_searches", 1, cache_key)
     except Exception as e:
         print(f"Redis popularity tracking failed: {e}")
 
-    return jsonify({"searchQuery": searchQuery, "data": data})
+    return func.HttpResponse(
+        json.dumps({"searchQuery": search_query, "data": data}),
+        status_code=200,
+        mimetype="application/json"
+    )
 
-@app.route('/api/popular', methods=['GET'])
-def popular():
+
+@app.route(route="api/popular", methods=["GET"])
+def popular(req: func.HttpRequest) -> func.HttpResponse:
     try:
         top = r.zrevrange("popular_searches", 0, 4)
-        return jsonify({"queries": [q.decode() for q in top]})
+        return func.HttpResponse(
+            json.dumps({"queries": [q.decode() for q in top]}),
+            status_code=200,
+            mimetype="application/json"
+        )
     except Exception as e:
         print(f"Redis popular queries failed: {e}")
-        return jsonify({"queries": []})
-
-if __name__ == '__main__':
-    app.run(debug=True, port=8000)
-
-
+        return func.HttpResponse(
+            json.dumps({"queries": []}),
+            status_code=200,
+            mimetype="application/json"
+        )
