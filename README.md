@@ -10,7 +10,7 @@ The goal is to provide specialists with a single interface to look up part numbe
 - 📊 **Nested supplier breakdowns** including distributor ID, links, and stock levels  
 - ⏱ **Asynchronous web scraping** for faster data collection across multiple sources
 - ⚡ **React/Next.js frontend** with Tailwind CSS for a clean, responsive UI
-- 🖥 **Flask API backend** powered by `aiohttp` + BeautifulSoup
+- 🖥 **Azure Functions backend** powered by `aiohttp` + BeautifulSoup
 - 📈 **Vercel Analytics** for usage tracking and insights
 
 ## Tech Stack
@@ -22,17 +22,18 @@ The goal is to provide specialists with a single interface to look up part numbe
 - [Tailwind CSS](https://tailwindcss.com/)  
 
 **Backend**  
-- [Python 3.11+](https://www.python.org/)  
-- [Flask](https://flask.palletsprojects.com/)  
+- [Python 3.13](https://www.python.org/)  
+- [Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/)  
 - [aiohttp](https://docs.aiohttp.org/)  
 - [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)  
+- [Upstash Redis](https://upstash.com/) for caching and popularity tracking  
 
 **Analytics**
 - [@vercel/analytics](https://vercel.com/analytics)
 
 **Deployment**
 - Frontend: Vercel
-- Backend: Render (Flask API)
+- Backend: Azure Functions (Flex Consumption)
 
 ## Roadmap
 
